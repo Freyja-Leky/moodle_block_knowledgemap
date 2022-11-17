@@ -32,7 +32,7 @@ function init(){
     let url = getQueryVariable("url");
 
     url = url+"="+id;
-    console.log(url);
+
     let aCourse = document.getElementById('aCourse');
     aCourse.href = url;
 
@@ -141,16 +141,13 @@ btnRefresh.click(function () {
     $.ajax({
         url:"question.php?query="+"prtnodes"+"&question="+question+"&prt="+prt,
         success:function (data,status) {
-            console.log(data);
-            // if (data != "Null") {
-            //     prtNodes = JSON.parse(data);
-            //     // prtNodes = data;
-            //     console.log(prtNodes);
-            //
-            // }
-            // else {
-            //     console.log("NULL");
-            // }
+            if (data != "Null") {
+                //to do
+
+            }
+            else {
+                console.log("NULL");
+            }
         }
     })
 

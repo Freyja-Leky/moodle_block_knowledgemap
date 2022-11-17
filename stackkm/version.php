@@ -17,18 +17,15 @@
 /**
  * Plugin version and other meta-data are defined here.
  *
- * @package     block_devesample
+ * @package     block_stackkm
  * @copyright   2022 WangLilin<Rin_Freyja@hotmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_devesample';
+$plugin->component = 'block_stackkm';
 $plugin->release = '0.1.0';
-$plugin->version = 2022072800;
+$plugin->version = 2022111500;
 $plugin->requires = 2021051700;
 $plugin->maturity = MATURITY_ALPHA;
-//$plugin->dependencies = [
-//    'stack' => ,
-//];

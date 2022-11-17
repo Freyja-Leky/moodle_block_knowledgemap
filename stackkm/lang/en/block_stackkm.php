@@ -15,39 +15,17 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * All the steps to restore block_devesample are defined here.
+ * Plugin strings are defined here.
  *
- * @package     block_devesample
- * @category    backup
+ * @package     block_stackkm
+ * @category    string
  * @copyright   2022 WangLilin<Rin_Freyja@hotmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-// More information about the backup process: {@link https://docs.moodle.org/dev/Backup_API}.
-// More information about the restore process: {@link https://docs.moodle.org/dev/Restore_API}.
-
-/**
- * Defines the structure step to restore one devesample block.
- */
-class restore_devesample_block_structure_step extends restore_structure_step {
-
-    /**
-     * Defines the structure to be restored.
-     */
-    protected function define_structure() {
-
-        $paths = array();
-
-        return $paths;
-    }
-
-    /**
-     * Defines post-execution actions.
-     */
-    protected function after_execute() {
-
-        return;
-    }
-}
+$string['stackkm:addinstance'] = 'addinstance';
+$string['pluginname'] = 'STACK Knowledge Map';
+$string['hello'] = 'Hello　<b>World<b>{$a}';
+$string['viewKM'] = 'View the Knowledge Map for this course.';

@@ -206,10 +206,10 @@
 
 //
 //    $PAGE->requires->jquery();
-//    $PAGE->requires->js(new moodle_url($CFG->wwwroot . '/blocks/devesample/js/test.js'));
+//    $PAGE->requires->js(new moodle_url($CFG->wwwroot . '/blocks/stackkm/js/test.js'));
 //
 //    $PAGE->requires->js_call_amd('js/test','init');
-//    $PAGE->requires->js('/blocks/devesample/js/test.js');
+//    $PAGE->requires->js('/blocks/stackkm/js/test.js');
 
 echo $OUTPUT->header();
 echo $OUTPUT->footer();

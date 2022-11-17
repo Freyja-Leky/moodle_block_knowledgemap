@@ -15,20 +15,20 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Block devesample is defined here.
+ * Block stackkm is defined here.
  *
- * @package     block_devesample
+ * @package     block_stackkm
  * @copyright   2022 WangLilin<Rin_Freyja@hotmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_devesample extends block_base {
+class block_stackkm extends block_base {
 
     /**
      * Initializes class member variables.
      */
     public function init() {
         // Needed by Moodle to differentiate between blocks.
-        $this->title = get_string('pluginname', 'block_devesample');
+        $this->title = get_string('pluginname', 'block_stackkm');
     }
 
     /**
@@ -53,28 +53,29 @@ class block_devesample extends block_base {
         $this->content->icons = array();
         $this->content->footer = '';
 
-        $knowledgeMapPageurl = new moodle_url('/blocks/devesample/knowledgeMap.html');
+        $url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        $knowledgeMapPageurl = new moodle_url('/blocks/stackkm/knowledgeMap.html');
         $course = $this->page->course;
 
-        if (!$DB->get_record('block_devesample_km',array('courseid'=>$course->id))){
-            $this->content->text = '<a href="'.$knowledgeMapPageurl.'">New Knowledge Map for this course here.</a>';
+        if (!$DB->get_record('stackkm_km',array('courseid'=>$course->id))){
+            $this->content->text = '<a href="'.$knowledgeMapPageurl.'?id='.$course->id.'&url='.$url.'">New Knowledge Map for this course here.</a>';
         }
         else{
-            $url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-
-            $questionPageurl = new moodle_url('/blocks/devesample/question.html');
-            $iconic = new moodle_url('/blocks/devesample/icon/graph_icon.png');
-//            $url = new moodle_url('/blocks/devesample/test.html');
-            $this->content->text = '<form action="'.$knowledgeMapPageurl.'" name="jump" method="POST" id="infoForm">';
-            $this->content->text .= '<label>Modify KnowLedge Map for this course.</label>';
+            $questionPageurl = new moodle_url('/blocks/stackkm/question.html');
+            $iconic = new moodle_url('/blocks/stackkm/icon/graph_icon.png');
+            $testurl = new moodle_url('/blocks/stackkm/test/dbtest.php');
+            $this->content->text = '<form action="'.$knowledgeMapPageurl.'?id='.$course->id.'&url='.$url.'" name="jump" method="POST" id="infoForm">';
+            $this->content->text .= '<label>Modify Knowledge Map for this course.</label>';
             $this->content->text .= '<input type="image" src="'.$iconic.'" style="width:180px;height:135px">';
-            $this->content->text .= '<input type="hidden" name="url" value="'.$url.'">';
-            $this->content->text .= '<input type="hidden" name="courseID" value="'.$course->id.'">';
-            $this->content->text .= '<input type="hidden" name="courseShortName" value="'.$course->shortname.'">';
-            $this->content->text .= '<input type="hidden" name="courseFullName" value="'.$course->fullname.'">';
+//            $this->content->text .= '<input type="hidden" name="url" value="'.$url.'">';
+//            $this->content->text .= '<input type="hidden" name="courseID" value="'.$course->id.'">';
+//            $this->content->text .= '<input type="hidden" name="courseShortName" value="'.$course->shortname.'">';
+//            $this->content->text .= '<input type="hidden" name="courseFullName" value="'.$course->fullname.'">';
             $this->content->text .= '</form>';
 
             $this->content->text .='<a href="'.$questionPageurl.'?id='.$course->id.'&url='.$url.'">Edit Question Feedback Here</a>';
+            $this->content->text .='<a href="'.$testurl.'">Edit</a>';
+//            $this->context->text .='<label>'.$test->courseid.'</label>';
 //        $this->content->text .='<a href="'.$url.'?id='.$course->id.'&url='.$url.'">Edit TEST Feedback Here</a>';
         }
 
@@ -90,7 +91,7 @@ class block_devesample extends block_base {
 
         // Load user defined title and make sure it's never empty.
         if (empty($this->config->title)) {
-            $this->title = get_string('pluginname', 'block_devesample');
+            $this->title = get_string('pluginname', 'block_stackkm');
         } else {
             $this->title = $this->config->title;
         }

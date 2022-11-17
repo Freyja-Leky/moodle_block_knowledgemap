@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/stackkm/db" VERSION="20221115" COMMENT="XMLDB file for Moodle blocks/stackkm"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="stackkm_km" COMMENT="course's knowledge map id">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign-unique" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" COMMENT="foreign unique key to course-&amp;gt;id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="stackkm_node" COMMENT="knowledge map's node bank">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="node name"/>
+        <FIELD NAME="field" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="node's field"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="stackkm_link" COMMENT="knowledge map's link bank">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="from" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="from node"/>
+        <FIELD NAME="to" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="to node"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="from" TYPE="foreign" FIELDS="from" REFTABLE="stackkm_node" REFFIELDS="id" COMMENT="link bank to node bank"/>
+        <KEY NAME="to" TYPE="foreign" FIELDS="to" REFTABLE="stackkm_node" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="stackkm_node_slot" COMMENT="slot between knowledge map to nodes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="knowledgemap" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="knowledge map id from stackkm_km"/>
+        <FIELD NAME="node" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="node id from stackkm_node"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="knowledgemap" TYPE="foreign" FIELDS="knowledgemap" REFTABLE="stackkm_km" REFFIELDS="id" COMMENT="foreign key to stackkm_km"/>
+        <KEY NAME="node" TYPE="foreign" FIELDS="node" REFTABLE="stackkm_node" REFFIELDS="id" COMMENT="foreign key to stackkm_node"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="stackkm_link_slot" COMMENT="slot between link bank and knowledge map">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="knowledgemap" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="stackkm_km-&amp;gt;id"/>
+        <FIELD NAME="link" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="stackkm_link-&amp;gt;id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="knowledgemap" TYPE="foreign" FIELDS="knowledgemap" REFTABLE="stackkm_km" REFFIELDS="id" COMMENT="foreign key of stackkm_km"/>
+        <KEY NAME="link" TYPE="foreign" FIELDS="link" REFTABLE="stackkm_link" REFFIELDS="id" COMMENT="foreign key of stackkm_link"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="stackkm_prt_map" COMMENT="prt map for question">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="question-&amp;gt;id"/>
+        <FIELD NAME="prtname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="question's prtname, qtype_stack_prt_nodes-&amp;gt;trueanswernote or qtype_stack_prt_nodes-&amp;gt;falseanswernote"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" COMMENT="question-&amp;gt;id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="stackkm_prt_slot" COMMENT="slot between prtmap-&amp;gt;id to its nodes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="prtmap" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="stackkm_prt_map-&amp;gt;id"/>
+        <FIELD NAME="node" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="stackkm_node-&amp;gt;id"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="status of node"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="prtmap" TYPE="foreign" FIELDS="prtmap" REFTABLE="stackkm_prt_map" REFFIELDS="id" COMMENT="stackkm_prt_map-&amp;gt;id"/>
+        <KEY NAME="node" TYPE="foreign" FIELDS="node" REFTABLE="stackkm_node" REFFIELDS="id" COMMENT="stackkm_node-&amp;gt;id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

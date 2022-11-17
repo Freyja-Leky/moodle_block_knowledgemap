@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Backup steps for block_devesample are defined here.
+ * Backup steps for block_stackkm are defined here.
  *
- * @package     block_devesample
+ * @package     block_stackkm
  * @category    backup
  * @copyright   2022 WangLilin<Rin_Freyja@hotmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Define the complete structure for backup, with file and id annotations.
  */
-class backup_devesample_block_structure_step extends backup_block_structure_step {
+class backup_stackkm_block_structure_step extends backup_block_structure_step {
 
     /**
      * Defines the structure of the resulting xml file.
@@ -44,7 +44,7 @@ class backup_devesample_block_structure_step extends backup_block_structure_step
         // Replace with the attributes and final elements that the element will handle.
         $attributes = null;
         $finalelements = null;
-        $root = new backup_nested_element('block_devesample', $attributes, $finalelements);
+        $root = new backup_nested_element('block_stackkm', $attributes, $finalelements);
 
         // Build the tree with these elements with $root as the root of the backup tree.
 

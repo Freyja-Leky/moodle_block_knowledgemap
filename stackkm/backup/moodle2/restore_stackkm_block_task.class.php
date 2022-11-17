@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * The task that provides all the steps to perform a complete backup is defined here.
+ * The task that provides a complete restore of block_stackkm is defined here.
  *
- * @package     block_devesample
+ * @package     block_stackkm
  * @category    backup
  * @copyright   2022 WangLilin<Rin_Freyja@hotmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,52 +28,68 @@ defined('MOODLE_INTERNAL') || die();
 // More information about the backup process: {@link https://docs.moodle.org/dev/Backup_API}.
 // More information about the restore process: {@link https://docs.moodle.org/dev/Restore_API}.
 
-require_once($CFG->dirroot.'//blocks/devesample/backup/moodle2/backup_devesample_stepslib.php');
+require_once($CFG->dirroot.'//blocks/stackkm/backup/moodle2/restore_stackkm_stepslib.php');
 
 /**
- * Provides all the settings and steps to perform a complete backup of block_devesample.
+ * Restore task for block_stackkm.
  */
-class backup_devesample_block_task extends backup_block_task {
+class restore_stackkm_block_task extends restore_block_task {
 
     /**
-     * Defines particular settings for the plugin.
+     * Defines particular settings that the block can have.
      */
     protected function define_my_settings() {
         return;
     }
 
     /**
-     * Defines particular steps for the backup process.
+     * Defines particular steps that the block can have.
      */
     protected function define_my_steps() {
         return;
     }
 
     /**
-     * Returns the array of file area names within the block context.
+     * Returns the fileareas belonging to the block.
      *
-     * @return string[] File area names.
+     * @return array.
      */
     public function get_fileareas() {
         return array();
     }
 
     /**
-     * Returns the config elements that must be processed before they are stored for backup.
+     * Returns the encoded configuration attributes.
      *
-     * @return string[] Config elements.
+     * @return array;
      */
     public function get_configdata_encoded_attributes() {
         return array();
     }
 
     /**
-     * Codes the transformations to perform in the block in order to get transportable (encoded) links.
+     * Defines the contents in the block that must be processed by the link decoder.
      *
-     * @param string $content
-     * @return string
+     * @return array.
      */
-    public static function encode_content_links($content) {
-        return $content;
+    public static function define_decode_contents() {
+        $contents = array();
+
+        // Define the contents.
+
+        return $contents;
+    }
+
+    /**
+     * Defines the decoding rules for links belonging to the block to be executed by the link decoder.
+     *
+     * @return array.
+     */
+    public static function define_decode_rules() {
+        $rules = array();
+
+        // Define the rules, if any.
+
+        return $rules;
     }
 }

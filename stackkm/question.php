@@ -86,11 +86,12 @@ function getQuestionPRTList($id){
 function getPRTNodes($question,$prt){
     global $DB;
 
-    if (!$nodes = $DB->get_record('block_devesample_nodes',array("field"=>"11111"))){
-        return "11111111111";
+    if (!$nodes = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+        return "Null";
     }
     else
         return json_encode($nodes);
+    //to do
 
 //    $jsPRTNodes = array();
 //
@@ -116,8 +117,6 @@ function getPRTNodes($question,$prt){
 //    }
 
 //    return json_encode($jsPRTNodes);
-//    return json_encode($id);
-
 }
 
 

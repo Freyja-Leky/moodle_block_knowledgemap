@@ -17,7 +17,7 @@
 /**
  * Plugin capabilities are defined here.
  *
- * @package     block_devesample
+ * @package     block_stackkm
  * @category    access
  * @copyright   2022 WangLilin<Rin_Freyja@hotmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'block/devesample:addinstance' => [
+    'block/stackkm:addinstance' => [
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
@@ -35,7 +35,7 @@ $capabilities = [
             'student' => CAP_ALLOW,
         ],
     ],
-    'block/devesample:view' => [
+    'block/stackkm:view' => [
         'captype' => 'view',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [

@@ -17,7 +17,7 @@
 /**
  * Plugin strings are defined here.
  *
- * @package     block_devesample
+ * @package     block_stackkm
  * @category    string
  * @copyright   2022 WangLilin<Rin_Freyja@hotmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,6 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['devesample:addinstance'] = 'addinstance';
+$string['stackkm:addinstance'] = 'addinstance';
 $string['pluginname'] = 'でヴァ';
 $string['hello'] = 'こんにちは';
