@@ -31,7 +31,7 @@ function getMapId($id){
         return $mapId->id;
 }
 
-//select stackm_node_slot=>knowledgemap ->node ; stackkm_node_=>node ->name,field
+//select stackm_node_slot=>knowledgemap ->node ; stackkm_node =>node ->name,field
 function getMapNodes($mapId){
     global $DB;
 
@@ -49,13 +49,61 @@ function getMapNodes($mapId){
                 $DB->delete_records('stackkm_node_slot',array('node'=>$value->node));
                 break;
             }
-            $nodes[] = array("name"=>$node->name,"category"=>$node->field);
+            $nodes[] = array("name"=>$node->name,"category"=>$node->field,"id"=>$node->id);
         }
     }
     
-    return $nodes;
+    return json_encode($nodes);
 }
 
+//select stackkm_link_slot=>knowledgemap -> link ; stackkm_link => link - > from, to
+function getMapLinks($mapId){
+    global $DB;
+
+    $links = array();
+
+    if (!$link_slot = $DB->get_records('stackkm_link_slot',array('knowledgemap'=>$mapId))){
+        return -1;
+    }
+    //get links from stackkm_node
+    else{
+        foreach ($link_slot as $key=>$value){
+            if (!$link = $DB->get_record('stackkm_link',array('id'=>$value->link))){
+                $DB->delete_records('stackkm_link_slot',array('link'=>$value->link));
+                break;
+            }
+            $links[] = array("source"=>$link->from,"target"=>$link->to);
+        }
+    }
+
+    return json_encode($links);
+}
+
+// insert stackkm_node & stackkm_node_slot
+function insertOneNode($name,$field,$mapId){
+    global $DB;
+
+    if (!$id = $DB->record_exists('stackkm_node',array('name'=>$name,'field'=>$field))){
+
+        $node = new StdClass();
+        $node->name = $name;
+        $node->field = $field;
+
+        $id = $DB->insert_record('stackkm_node',$node,true,false);
+    }
+    
+    if (!$slotId = $DB->record_exists('stackkm_node_slot',array('knowledgemap'=>$mapId,'node'=>$id))){
+
+        $nodeSlot = new StdClass();
+        $nodeSlot->knowledgemap = $mapId;
+        $nodeSlot->node = $id;
+
+        return $DB->insert_record('stackkm_node_slot',$nodeSlot,true,false);
+    }
+    return -1;
+}
+
+// insert stackkm_km
 function insertMap($courseid){
     global $DB;
 
@@ -64,6 +112,69 @@ function insertMap($courseid){
 
     return $DB->insert_record('stackkm_km',$km,true,false);
 }
+
+//delete stackkm_km
+function deleteMap($courseid){
+    global $DB;
+
+    return $DB->delete_records('stackkm_km',array('courseid'=>$courseid));
+}
+
+//with insertMap and insertOneNode
+function insertFirstNode($name,$field,$id){
+    global $DB;
+
+    echo "insertFirstNode";
+    
+    if (!$mapId = $DB->get_record('stackkm_km',array('courseid'=>$id))){
+        $km = new StdClass();
+        $km->courseid = $id;
+
+        $mapId = $DB->insert_record('stackkm_km',$km,true,false);
+        echo $mapId;
+    }
+
+    return insertOneNode($name,$field,$mapId);
+}
+
+//insert stackkm_link & stackkm_link_slot
+function insertLink($to,$from,$mapId){
+    global $DB;
+    
+    if (!$id = $DB->record_exists('stackkm_link',array('to'=>$to,'from'=>$from))){
+
+        $link = new StdClass();
+        $link->to = $to;
+        $link->from = $from;
+
+        $id = $DB->insert_record('stackkm_link',$link,true,false);
+    }
+
+    if (!$slotId = $DB->record_exists('stackkm_link_slot',array('knowledgemap'=>$mapId,'link'=>$id))){
+
+        $linkSlot = new StdClass();
+        $linkSlot->knowledgemap = $mapId;
+        $linkSlot->link = $id;
+
+        return $DB->insert_record('stackkm_link_slot',$linkSlot,true,false);
+    }
+    return -1;
+}
+
+
+
+
+
+
+function test($to,$from){
+    global $DB;
+
+//    echo $to,$from;
+
+    return $DB->get_record('stackkm_link',array('to'=>$to,'from'=>$from));
+   
+}
+
 
 $query = $_GET["query"];
 
@@ -80,8 +191,26 @@ switch ($query){
     case "insertMap":
         echo insertMap($_GET["id"]);
         break;
+    case "deleteMap":
+        echo deleteMap($_GET["id"]);
+        break;
     case "mapNodes":
         echo getMapNodes($_GET["mapId"]);
+        break;
+    case "mapLinks":
+        echo getMapLinks($_GET["mapId"]);
+        break;
+    case "insertOneNode":
+        echo insertOneNode($_GET["name"],$_GET["field"],$_GET["mapId"]);
+        break;
+    case "insertFirstNode":
+        echo insertFirstNode($_GET["name"],$_GET["field"],$_GET["id"]);
+        break; 
+    case "insertLink":
+        echo insertLink($_GET["to"],$_GET["from"],$_GET["mapId"]);
+        break;
+    case "test":
+        echo test($_GET["to"],$_GET["from"]);
         break;
 }
 
