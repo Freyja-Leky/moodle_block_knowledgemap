@@ -74,7 +74,7 @@ class block_stackkm extends block_base {
             $this->content->text .= '</form>';
 
             $this->content->text .='<a href="'.$questionPageurl.'?id='.$course->id.'&url='.$url.'">Edit Question Feedback Here</a>';
-            $this->content->text .='<a href="'.$testurl.'">Edit</a>';
+//            $this->content->text .='<a href="'.$testurl.'">Edit</a>';
 //            $this->context->text .='<label>'.$test->courseid.'</label>';
 //        $this->content->text .='<a href="'.$url.'?id='.$course->id.'&url='.$url.'">Edit TEST Feedback Here</a>';
         }

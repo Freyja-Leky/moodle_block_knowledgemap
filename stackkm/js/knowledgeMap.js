@@ -39,8 +39,12 @@ function getMapNodes() {
         url:"knowledgeMap.php?query="+"mapNodes"+"&mapId="+mapId,
         async: false,
         success:function (data,status) {
-            mapNodes = JSON.parse(data);
-            console.log(mapNodes);
+            if (data == -1){
+                mapNodes = data;
+            }
+            else {
+                mapNodes = JSON.parse(data);
+            }
         }
     })
 }
@@ -50,7 +54,12 @@ function getMapLinks() {
         url:"knowledgeMap.php?query="+"mapLinks"+"&mapId="+mapId,
         async: false,
         success:function (data,status) {
-            mapLinks = JSON.parse(data);
+            if (data == -1){
+                mapLinks = -1;
+            }
+            else {
+                mapLinks = JSON.parse(data);
+            }
         }
     })
 }
@@ -58,29 +67,54 @@ function getMapLinks() {
 function calNodeWeight(){
     nodeWeight = [];
 
+    if (mapLinks == -1){
+        return;
+    }
+
     for (let i = 0; i < mapLinks.length; i++){
+        let flag = false;
         for (let j = 0; j < nodeWeight.length; j++){
             if (mapLinks[i].source == nodeWeight[j].id){
-                nodeWeight[j].weight+=2;
+                nodeWeight[j].weight+=3;
+                flag = true;
                 break;
             }
+        }
+        if (!flag){
             nodeWeight.push({id:mapLinks[i].source,weight:10});
         }
+        flag = false;
         for (let j = 0; j < nodeWeight.length; j++){
             if (mapLinks[i].target == nodeWeight[j].id){
-                nodeWeight[j].weight+=2;
+                nodeWeight[j].weight+=3;
+                flag = true;
                 break;
             }
+        }
+        if (!flag){
             nodeWeight.push({id:mapLinks[i].target,weight:10});
         }
     }
-    console.log(nodeWeight);
+
+}
+
+function RefreshGraph() {
+    chart.clear();
+
+    getMapNodes();
+    getMapLinks();
+    calNodeWeight();
+
+    option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
+    chart.setOption(option);
 }
 
 function RefreshEdgeSelect(){
 
     fromSelect.find("option").remove();
     toSelect.find("option").remove();
+
+    getMapNodes();
 
     for (let i = 0; i < mapNodes.length; i++){
         let opt = "<option value="+mapNodes[i].id+">"+mapNodes[i].name+"</option>";
@@ -129,7 +163,6 @@ function init() {
         async:false,
         success:function (data,status) {
             mapId = data;
-            console.log(mapId);
         }
     })
 
@@ -156,9 +189,6 @@ function init() {
     calNodeWeight();
 
     option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
-    
-    console.log(option);
-
     chart.setOption(option);
 }
 
@@ -222,7 +252,7 @@ addNode.click(function (){
     RefreshEdgeSelect();
 
     //todo
-    chart.clear();
+    RefreshGraph();
 
 })
 
@@ -238,19 +268,10 @@ addEdge.click(function () {
         return;
     }
 
-    // $.ajax({
-    //     url:"knowledgeMap.php?query="+"test"+"&to="+2+"&from="+3,
-    //     async: false,
-    //     success:function (data,status) {
-    //         console.log(data);
-    //     }
-    // })
-
     $.ajax({
         url:"knowledgeMap.php?query="+"insertLink"+"&to="+toNode+"&from="+fromNode+"&mapId="+mapId,
         async: false,
         success:function (data,status) {
-            console.log(data);
             if (data == -1){
                 window.alert("Link already exist");
             }
@@ -258,6 +279,8 @@ addEdge.click(function () {
                 window.alert("Add link succeed");
         }
     })
+
+    RefreshGraph();
 
 })
 

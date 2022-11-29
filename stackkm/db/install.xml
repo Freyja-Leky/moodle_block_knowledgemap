@@ -27,13 +27,13 @@
     <TABLE NAME="stackkm_link" COMMENT="knowledge map's link bank">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="from" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="from node"/>
-        <FIELD NAME="to" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="to node"/>
+        <FIELD NAME="fromnode" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="from node"/>
+        <FIELD NAME="tonode" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="to node"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="from" TYPE="foreign" FIELDS="from" REFTABLE="stackkm_node" REFFIELDS="id" COMMENT="link bank to node bank"/>
-        <KEY NAME="to" TYPE="foreign" FIELDS="to" REFTABLE="stackkm_node" REFFIELDS="id"/>
+        <KEY NAME="fromnode" TYPE="foreign" FIELDS="fromnode" REFTABLE="stackkm_node" REFFIELDS="id" COMMENT="link bank to node bank"/>
+        <KEY NAME="tonode" TYPE="foreign" FIELDS="tonode" REFTABLE="stackkm_node" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="stackkm_node_slot" COMMENT="slot between knowledge map to nodes">

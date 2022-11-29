@@ -72,7 +72,7 @@ function getMapLinks($mapId){
                 $DB->delete_records('stackkm_link_slot',array('link'=>$value->link));
                 break;
             }
-            $links[] = array("source"=>$link->from,"target"=>$link->to);
+            $links[] = array("source"=>$link->fromnode,"target"=>$link->tonode);
         }
     }
 
@@ -140,14 +140,17 @@ function insertFirstNode($name,$field,$id){
 //insert stackkm_link & stackkm_link_slot
 function insertLink($to,$from,$mapId){
     global $DB;
-    
-    if (!$id = $DB->record_exists('stackkm_link',array('to'=>$to,'from'=>$from))){
+
+    if (!$id = $DB->record_exists('stackkm_link',array('tonode'=>$to,'fromnode'=>$from))){
 
         $link = new StdClass();
-        $link->to = $to;
-        $link->from = $from;
+        $link->tonode = $to;
+        $link->fromnode = $from;
 
         $id = $DB->insert_record('stackkm_link',$link,true,false);
+    }
+    else{
+        $id = $id->id;
     }
 
     if (!$slotId = $DB->record_exists('stackkm_link_slot',array('knowledgemap'=>$mapId,'link'=>$id))){

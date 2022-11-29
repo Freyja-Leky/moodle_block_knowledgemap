@@ -86,37 +86,68 @@ function getQuestionPRTList($id){
 function getPRTNodes($question,$prt){
     global $DB;
 
-    if (!$nodes = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+    if (!$prtmap = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
         return "Null";
     }
-    else
-        return json_encode($nodes);
     //to do
 
-//    $jsPRTNodes = array();
-//
-//    $jsPRTNodes[]=$question;
-//    $jsPRTNodes[]=$prt;
+    if (!$prt_slot = $DB->get_records('stackkm_prt_slot',array("prtmap"=>$prtmap->id))){
+        $DB->delete_records('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt));
+        return "Null";
+    }
 
-//    if (!$id = $DB->get_record('block_devesample_nodes',array("id"=>"1111"))){
-////        print_error('invalidmap');
-//        return "Null";
-//    }
-//
-//    if (!$nodes = $DB->get_records('block_devesample_prt_mapslot',array("prtmap"=>$id->id))){
-//        print_error('invalidnodes');
-//        return "Null";
-//    }
-//
-//    foreach ($nodes as $key=>$value){
-//        $jsPRTNodes[] = array("node"=>$value->node,"status"=>$value->status);
-//    }
-//
-//    if (count($jsPRTNodes)<=0){
-//        return "Null";
-//    }
+    $jsPRTNodes = array();
 
-//    return json_encode($jsPRTNodes);
+    foreach ($prt_slot as $key=>$value){
+        if (!$node = $DB->get_record('stackkm_node',array('id'=>$value->node))){
+            $DB->delete_records('stackkm_prt_slot',array("node"=>$value->node));
+            break;
+        }
+        $jsPRTNodes[] = array("name"=>$node->name,"status"=>$value->status,"id"=>$value->node);
+    }
+
+    return json_encode($jsPRTNodes);
+}
+
+function insertPRTNode($question,$prt,$nodeId){
+    global $DB;
+
+    if (!$id = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+
+        $map = new StdClass();
+        $map->questionid = $question;
+        $map->prtname = $prt;
+
+        $id = $DB->insert_record('stackkm_prt_map',$map,true,false);
+    }
+    else{
+        $id = $id->id;
+    }
+
+    if (!$slotId = $DB->get_record('stackkm_prt_slot',array("prtmap"=>$id,"node"=>$nodeId))){
+
+        $prtSlot = new StdClass();
+        $prtSlot->prtmap = $id;
+        $prtSlot->node = $nodeId;
+        $prtSlot->status = 1;
+
+        return $DB->insert_record('stackkm_prt_slot',$prtSlot,true,false);
+    }
+
+    return -1;
+}
+
+function deletePRTNode($question,$prt,$nodeId){
+    global $DB;
+
+    if (!$id = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+        return -1;
+    }
+    else{
+        $id = $id->id;
+    }
+
+    return $DB->delete_records('stackkm_prt_slot',array("prtmap"=>$id,"node"=>$nodeId));
 }
 
 
@@ -140,6 +171,12 @@ switch ($query){
         break;
     case "prtnodes":
         echo getPRTNodes($_GET["question"],$_GET["prt"]);
+        break;
+    case "addnode" :
+        echo insertPRTNode($_GET["question"],$_GET["prt"],$_GET["node"]);
+        break;
+    case "deletenode" :
+        echo deletePRTNode($_GET["question"],$_GET["prt"],$_GET["node"]);
         break;
 }
 
