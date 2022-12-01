@@ -164,10 +164,112 @@ function insertLink($to,$from,$mapId){
     return -1;
 }
 
+function updateMapNodes($mapId){
+    global $DB;
+
+    $data = json_decode($_POST['nodes']);
+
+    $DB->delete_records('stackkm_node_slot',array("knowledgemap"=>$mapId));
+
+    $nodes = [];
+
+    foreach ($data as $key=>$value){
+        $nodeId = null;
+        $slotId = null;
+        if (!$nodeId = $DB->get_record('stackkm_node',array("name"=>$value->name,"field"=>$value->category))){
+            $node = new StdClass();
+            $node->name = $value->name;
+            $node->field = $value->category;
+
+            $nodeId = $DB->insert_record('stackkm_node',$node,true,false);
+        }
+        else{
+            $nodeId = $nodeId->id;
+        }
+
+        if (!$slotId = $DB->get_record('stackkm_node_slot',array("knowledgemap"=>$mapId,"node"=>$nodeId))){
+            $nodeSlot = new StdClass();
+            $nodeSlot->knowledgemap = $mapId;
+            $nodeSlot->node = $nodeId;
+
+            $slotId = $DB->insert_record('stackkm_node_slot',$nodeSlot,true,false);
+        }
+//        print_r($value->name);
+    }
+
+    return -1;
+}
+
+function updateMapLinks($mapId){
+    global $DB;
+
+    $data = json_decode($_POST['links']);
+
+    $links = array();
+    $nodes = array();
+
+    $mapSlot = $DB->get_records('stackkm_node_slot',array("knowledgemap"=>$mapId));
+
+    foreach($mapSlot as $key=>$value){
+        $node = $DB->get_record('stackkm_node',array("id"=>$value->node));
+        $nodes[] = array("name"=>$node->name,"id"=>$node->id);
+    }
+
+    foreach ($data as $key=>$value){
+        $source = null;
+        $target = null;
+
+        foreach ($nodes as $node=>$nv){
+
+            if ($value->Source == $nv["name"]){
+                $source = $nv["id"];
+                break;
+            }
+        }
+        foreach ($nodes as $node=>$nv){
+            if ($value->Target == $nv["name"]){
+                $target = $nv["id"];
+                break;
+            }
+        }
+
+        if ($source == null || $target == null){
+            print_r("no");
+            continue;
+        }
+
+        $links[] = array("source"=>$source,"target"=>$target);
+    }
+
+    $DB->delete_records('stackkm_link_slot',array("knowledgemap"=>$mapId));
 
 
+    foreach ($links as $key=>$value){
 
+        $linkId = null;
+        $slotId = null;
 
+        if (!$linkId = $DB->get_record('stackkm_link',array("fromnode"=>$value["source"],"tonode"=>$value["target"]))){
+            $link = new StdClass();
+            $link->fromnode =$value["source"];
+            $link->tonode = $value["target"];
+
+            $linkId = $DB->insert_record('stackkm_link',$link,true,false);
+        }
+        else{
+            $linkId = $linkId->id;
+        }
+
+        if (!$slotId = $DB->get_record('stackkm_link_slot',array("knowledgemap"=>$mapId,"link"=>$linkId))){
+            $linkSlot = new StdClass();
+            $linkSlot->knowledgemap = $mapId;
+            $linkSlot->link = $linkId;
+
+            $slotId = $DB->insert_record('stackkm_link_slot',$linkSlot,true,false);
+        }
+    }
+    return -1;
+}
 
 function test($to,$from){
     global $DB;
@@ -211,6 +313,12 @@ switch ($query){
         break; 
     case "insertLink":
         echo insertLink($_GET["to"],$_GET["from"],$_GET["mapId"]);
+        break;
+    case "filenodes":
+        echo updateMapNodes($_GET["mapId"]);
+        break;
+    case "filelinks":
+        echo updateMapLinks($_GET["mapId"]);
         break;
     case "test":
         echo test($_GET["to"],$_GET["from"]);

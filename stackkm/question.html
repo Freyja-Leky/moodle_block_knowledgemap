@@ -61,7 +61,7 @@
     </div>
 
     <div class="col-4 offset-1" style="height: 600px">
-        <div id = "chart" style="height: 0;width: 100%;padding-bottom: 100%;border:1px solid">
+        <div id = "chart" style="height: 350px;width: 100%;border:1px solid">
         </div>
     </div>
 
@@ -90,8 +90,8 @@
             <select class="form-select" id="setNodeSelect"></select>
             <span class="input-group-text">As</span>
             <select class="form-select" id="stateSelect">
-                <option value="Learnt">Learnt</option>
-                <option value="Failed">Failed</option>
+                <option value = 1>Learnt</option>
+                <option value = 0>Failed</option>
             </select>
             <button class="btn btn-secondary" id="Save" style="width: 100%">Save</button>
         </div>
@@ -106,6 +106,7 @@
 
 </div>
 
+<script src="js/graph.js"></script>
 <script src="js/question.js"></script>
 
 </body>

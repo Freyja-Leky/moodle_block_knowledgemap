@@ -9,6 +9,9 @@ let addNode = $("#addNode");
 let fromSelect = $("#fromSelect");
 let toSelect = $("#toSelect");
 let addEdge = $("#addEdge");
+let download = $("#download");
+let upload = $("#upload");
+let save = $("#save");
 
 //data
 let id = null;
@@ -18,6 +21,10 @@ let mapId = null;
 let mapNodes = null;
 let nodeWeight = null;
 let mapLinks = null;
+
+let dataBook = null;
+let nodeData = null;
+let linkData = null;
 
 let option = null;
 
@@ -62,6 +69,39 @@ function getMapLinks() {
             }
         }
     })
+}
+
+function setFileDataMap(nodeData,linkData) {
+
+    mapNodes = [];
+    mapLinks = [];
+
+    for (let i = 0; i < nodeData.length; i++){
+        mapNodes.push({"name":nodeData[i].Name,"category":nodeData[i].Field,"id":nodeData[i].__rowNum__});
+    }
+
+    for (let i =0 ; i < linkData.length; i++){
+        let source = "";
+        let target = "";
+        for (j = 0 ; j < mapNodes.length; j++){
+            if (mapNodes[j].name == linkData[i].Source){
+                source = mapNodes[j].id;
+                break;
+            }
+        }
+        for (j = 0 ; j < mapNodes.length; j++){
+            if (mapNodes[j].name == linkData[i].Target){
+                target = mapNodes[j].id;
+                break;
+            }
+        }
+        if (source == "" || target == "")
+            continue;
+        mapLinks.push({"source":source,"target":target});
+    }
+
+    console.log(mapNodes);
+    console.log(mapLinks);
 }
 
 function calNodeWeight(){
@@ -256,8 +296,6 @@ addNode.click(function (){
 
 })
 
-
-
 addEdge.click(function () {
 
     let toNode = toSelect.val();
@@ -282,6 +320,128 @@ addEdge.click(function () {
 
     RefreshGraph();
 
+})
+
+download.click(function () {
+
+    console.log("download");
+    nodeData = [];
+    linkData = [];
+
+    nodeData.push(["Name","Field"]);
+    linkData.push(["Source","Target"]);
+
+
+    if (mapNodes != null && mapNodes.length > 0){
+        for (let i = 0 ; i < mapNodes.length; i++){
+            nodeData.push([mapNodes[i].name,mapNodes[i].category]);
+        }
+    }
+
+    if (mapLinks != null && mapLinks.length > 0){
+        for (let i = 0 ; i < mapLinks.length; i++){
+            let sourceName = null;
+            let targetName = null;
+            for (let j = 0; j < mapNodes.length; j++){
+                if (mapNodes[j].id == mapLinks[i].source){
+                    sourceName = mapNodes[j].name;
+                    break;
+                }
+            }
+            for (let j = 0; j < mapNodes.length; j++){
+                if (mapNodes[j].id == mapLinks[i].target){
+                    targetName = mapNodes[j].name;
+                    break;
+                }
+            }
+            linkData.push([sourceName,targetName]);
+        }
+    }
+
+    let workbook = XLSX.utils.book_new();
+    let nodeSheet = XLSX.utils.aoa_to_sheet(nodeData);
+    let linkSheet = XLSX.utils.aoa_to_sheet(linkData);
+    XLSX.utils.book_append_sheet(workbook,nodeSheet,"Node");
+    XLSX.utils.book_append_sheet(workbook,linkSheet,"Link");
+    XLSX.writeFile(workbook,"MapData.xlsx");
+})
+
+//input file excel
+function handleFile(e) {
+    let file = e.target.files[0];
+    let reader = new FileReader();
+    reader.onload = function () {
+        let data = e.target.result;
+        dataBook = XLSX.read(reader.result);
+        console.log(dataBook);
+    }
+    reader.readAsArrayBuffer(file);
+}
+
+
+document.getElementById("mapDataInput").addEventListener("change",handleFile,false);
+
+upload.click(function () {
+
+    if (dataBook == null){
+        window.alert("Please choose file");
+        return;
+    }
+
+    let nodeSheet = dataBook.Sheets[dataBook.SheetNames[0]];
+    let linkSheet = dataBook.Sheets[dataBook.SheetNames[1]];
+
+    nodeData = XLSX.utils.sheet_to_json(nodeSheet);
+    linkData = XLSX.utils.sheet_to_json(linkSheet);
+
+    setFileDataMap(nodeData,linkData);
+
+    chart.clear();
+
+    calNodeWeight();
+
+    option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
+    chart.setOption(option);
+
+    addNode.attr("disabled",true);
+    addEdge.attr("disabled",true);
+
+    //to do
+})
+
+save.click(function () {
+
+    let data = "nodes=" +JSON.stringify(mapNodes);
+
+    $.ajax({
+        type: "post",
+        url: "knowledgeMap.php?query="+"filenodes"+"&mapId="+mapId,
+        async: false,
+        data: data,
+        success: function (data) {
+            console.log(data);
+        }
+    });
+
+    data = "links=" + JSON.stringify(linkData);
+
+
+    $.ajax({
+        type: "post",
+        url: "knowledgeMap.php?query="+"filelinks"+"&mapId="+mapId,
+        async: false,
+        data: data,
+        success: function (data) {
+            console.log(data);
+        }
+    });
+
+    RefreshGraph();
+    RefreshEdgeSelect();
+
+    addNode.attr("disabled",false);
+    addEdge.attr("disabled",false);
+    //to do
 })
 
 

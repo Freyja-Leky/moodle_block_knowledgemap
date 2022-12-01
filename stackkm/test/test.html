@@ -6,35 +6,14 @@
     <title>Title</title>
 
     <script src="../lib/jquery-3.6.1.js"></script>
+    <script src = "../lib/xlsx.full.min.js"></script>
 </head>
 <body>
 <!-- 为 ECharts 准备一个定义了宽高的 DOM -->
 <div id="main" style="width: 600px;height:400px;"></div>
 
-<button onclick="test()">11111</button>
-<script type="text/javascript">
-        function test() {
-            $.ajax({
-                url:"dbtest.php",
-                success:function (data,status) {
-                    var obj = data;
-                    console.log(obj);
-                }
-            });
-        }
-
-        function init(){
-            $.ajax({
-                url:"dbtest.php",
-                success:function (data,status) {
-                    var obj = data;
-                    console.log(obj);
-                }
-            });
-        }
-
-        init();
-
-</script>
+<button id = "test">11111</button>
+<input type="file" id = "fileon">
+<script src="../js/test.js"></script>
 </body>
 </html>

@@ -1,5 +1,9 @@
-
 //Get UI
+let chart = echarts.init(document.getElementById('chart'));
+window.onresize = function() {
+    chart.resize();
+};
+
 let selectQuiz = $("#quizSelect");
 let selectQuestion = $("#questionSelect");
 let selectPRT = $("#PRTSelect");
@@ -14,7 +18,7 @@ let selectSet = $("#setNodeSelect");
 let selectState = $("#stateSelect");
 let btnSave = $("#Save");
 
-
+let option = null;
 
 //data
 let mapId = null;
@@ -76,9 +80,11 @@ function getPRTMap(question,prt) {
             }
             else {
                 addNodesList = JSON.parse(JSON.stringify(mapNodes));
+                prtNodes = null;
             }
         }
     })
+
 
     //renew add
     selectAdd.find("option").remove();
@@ -120,6 +126,16 @@ function getPRTMap(question,prt) {
             selectSet.append(opt);
         }
     }
+
+    chart.clear();
+    window.onresize = function() {
+        chart.resize();
+    };
+    option = drawPRTMap(prtNodes);
+    if (option == null){
+        return;
+    }
+    chart.setOption(option);
 }
 
 //init
@@ -297,7 +313,7 @@ btnDelete.click(function () {
 
 
     if (quiz == -1 || question == -1 || prt == -1 || node == -1){
-        window.alert("Quiz, question, and prt can not be empty");
+        window.alert("Please select node");
         return;
     }
 
@@ -317,6 +333,26 @@ btnDelete.click(function () {
 
 })
 
+btnSave.click(function () {
+    let quiz = selectQuiz.val();
+    let question = selectQuestion.val();
+    let prt = selectPRT.val();
+    let node = selectSet.val();
+    let status = selectState.val();
+
+    if (quiz == -1 || question == -1 || prt == -1 || node == -1){
+        window.alert("Please select node");
+        return;
+    }
+
+    $.ajax({
+        url:"question.php?query="+"setstatus"+"&question="+question+"&prt="+prt+"&node="+node+"&status="+status,
+        async : false,
+        success:function (data,status) {
+            getPRTMap(question,prt);
+        }
+    })
+})
 
 init();
 

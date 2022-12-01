@@ -63,7 +63,7 @@ class block_stackkm extends block_base {
         else{
             $questionPageurl = new moodle_url('/blocks/stackkm/question.html');
             $iconic = new moodle_url('/blocks/stackkm/icon/graph_icon.png');
-            $testurl = new moodle_url('/blocks/stackkm/test/dbtest.php');
+            $testurl = new moodle_url('/blocks/stackkm/test/test.html');
             $this->content->text = '<form action="'.$knowledgeMapPageurl.'?id='.$course->id.'&url='.$url.'" name="jump" method="POST" id="infoForm">';
             $this->content->text .= '<label>Modify Knowledge Map for this course.</label>';
             $this->content->text .= '<input type="image" src="'.$iconic.'" style="width:180px;height:135px">';

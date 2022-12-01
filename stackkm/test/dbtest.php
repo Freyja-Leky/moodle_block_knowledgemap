@@ -1,9 +1,11 @@
 <?php
 
-use core\report_helper;
+$t = $_GET['query'];
 
-require('../../config.php');
+print_r($t);
 
-echo $OUTPUT->header();
-echo $OUTPUT->footer();
+$data = $_POST['node'];
+$data = json_decode($data);
 
+print_r($data);
+?>

@@ -140,14 +140,34 @@ function insertPRTNode($question,$prt,$nodeId){
 function deletePRTNode($question,$prt,$nodeId){
     global $DB;
 
-    if (!$id = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+    if (!$prtmap = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
         return -1;
     }
-    else{
-        $id = $id->id;
-    }
+    $id = $prtmap->id;
 
     return $DB->delete_records('stackkm_prt_slot',array("prtmap"=>$id,"node"=>$nodeId));
+}
+
+function setStatus($question,$prt,$node,$status){
+    global $DB;
+
+    if (!$prtmap = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+        return -1;
+    }
+    $prtmap = $prtmap->id;
+
+    if (!$slot = $DB->get_record('stackkm_prt_slot',array("prtmap"=>$prtmap,"node"=>$node))){
+        return -1;
+    }
+    $slotId = $slot->id;
+
+    $newSlot = new StdClass();
+    $newSlot->id = $slotId;
+    $newSlot->prtmap = $prtmap;
+    $newSlot->node = $node;
+    $newSlot->status = $status;
+
+    return $DB->update_record('stackkm_prt_slot',$newSlot,false);
 }
 
 
@@ -177,6 +197,9 @@ switch ($query){
         break;
     case "deletenode" :
         echo deletePRTNode($_GET["question"],$_GET["prt"],$_GET["node"]);
+        break;
+    case "setstatus" :
+        echo setStatus($_GET["question"],$_GET["prt"],$_GET["node"],$_GET["status"]);
         break;
 }
 
