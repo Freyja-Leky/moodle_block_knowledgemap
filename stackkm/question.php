@@ -18,12 +18,12 @@ function getCourseShortName($id){
     return $course->shortname;
 }
 
+// select quiz:id & name with courseId
 function getCourseQuizList($id){
     global $DB;
 
     if(!$quizList = $DB->get_records('quiz',array('course'=>$id))){
-        print_error('invalidquiz');
-        return "Null";
+        return -1;
     }
 
     $jsQuizList = array();
@@ -37,6 +37,7 @@ function getCourseQuizList($id){
 
 }
 
+//select question: id & name with courseId
 function getQuizQuestionList($id)
 {
     global $DB;
@@ -47,32 +48,29 @@ function getQuizQuestionList($id)
     $questions = quiz_report_get_significant_questions($quiz->get_quiz());
 
     foreach ($questions as $key => $value) {
-
         if ($value->qtype == "stack") {
             if (!$question = $DB->get_record('question', array('id' => $value->id))) {
-                print_error('invalidquestion');
                 break;
             }
             $jsQuestionList[] = array("id"=>$question->id,"name"=>$question->name);
         }
     }
 
-    if (count($jsQuestionList)>0){
+    if (count($jsQuestionList) > 0){
         return json_encode($jsQuestionList);
     }
-    else{
-        return "Null";
-    }
+    else
+        return -1;
 }
 
+//select prt: name with questionid
 function getQuestionPRTList($id){
     global $DB;
 
     $jsPRTList = array();
 
     if (!$prt = $DB->get_records('qtype_stack_prt_nodes',array("questionid"=>$id))){
-        print_error('invalidprt');
-        return "Null";
+        return -1;
     }
 
     foreach ($prt as $key=>$value){
@@ -80,54 +78,62 @@ function getQuestionPRTList($id){
         $jsPRTList[] = $value->falseanswernote;
     }
 
-    return json_encode($jsPRTList);
+    if (count($jsPRTList) > 0){
+        return json_encode($jsPRTList);
+    }
+    else
+        return -1;
+
 }
 
 function getPRTNodes($question,$prt){
     global $DB;
 
-    if (!$prtmap = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
-        return "Null";
+    if (!$prtMap = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+        return -1;
     }
-    //to do
 
-    if (!$prt_slot = $DB->get_records('stackkm_prt_slot',array("prtmap"=>$prtmap->id))){
+    if (!$prtSlot = $DB->get_records('stackkm_prt_slot',array("prtmap"=>$prtMap->id))){
         $DB->delete_records('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt));
-        return "Null";
+        return -1;
     }
 
     $jsPRTNodes = array();
 
-    foreach ($prt_slot as $key=>$value){
+    foreach ($prtSlot as $key=>$value){
         if (!$node = $DB->get_record('stackkm_node',array('id'=>$value->node))){
-            $DB->delete_records('stackkm_prt_slot',array("node"=>$value->node));
-            break;
+            $DB->delete_records('stackkm_prt_slot',array("node"=>$value->node,"prtmap"=>$prtMap->id));
+            continue;
         }
         $jsPRTNodes[] = array("name"=>$node->name,"status"=>$value->status,"id"=>$value->node);
     }
 
-    return json_encode($jsPRTNodes);
+    if (count($jsPRTNodes) > 0){
+        return json_encode($jsPRTNodes);
+    }
+    else
+        return -1;
 }
 
 function insertPRTNode($question,$prt,$nodeId){
     global $DB;
 
-    if (!$id = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
+    if (!$prtMap = $DB->get_record('stackkm_prt_map',array("questionid"=>$question,"prtname"=>$prt))){
 
         $map = new StdClass();
         $map->questionid = $question;
         $map->prtname = $prt;
 
-        $id = $DB->insert_record('stackkm_prt_map',$map,true,false);
+        $prtMap = $DB->insert_record('stackkm_prt_map',$map,true,false);
     }
     else{
-        $id = $id->id;
+        $prtMap = $prtMap->id;
     }
 
-    if (!$slotId = $DB->get_record('stackkm_prt_slot',array("prtmap"=>$id,"node"=>$nodeId))){
+    if (!$slot = $DB->get_record('stackkm_prt_slot',array("prtmap"=>$prtMap,"node"=>$nodeId))){
 
         $prtSlot = new StdClass();
-        $prtSlot->prtmap = $id;
+        $prtSlot->prtmap = $prtMap;
         $prtSlot->node = $nodeId;
         $prtSlot->status = 1;
 
@@ -174,31 +180,31 @@ function setStatus($question,$prt,$node,$status){
 $query = $_GET["query"];
 
 switch ($query){
-    case "fullname":
+    case "getCourseFullName":
         echo getCourseFullName($_GET["id"]);
         break;
-    case "shortname":
+    case "getCourseShortName":
         echo getCourseShortName($_GET["id"]);
         break;
-    case "quizlist":
+    case "getCourseQuizList":
         echo getCourseQuizList($_GET["id"]);
         break;
-    case "questions":
+    case "getQuizQuestionList":
         echo getQuizQuestionList($_GET["quiz"]);
         break;
-    case "prt":
+    case "getQuestionPRTList":
         echo getQuestionPRTList($_GET["question"]);
         break;
-    case "prtnodes":
+    case "getPRTNodes":
         echo getPRTNodes($_GET["question"],$_GET["prt"]);
         break;
-    case "addnode" :
+    case "insertPRTNode" :
         echo insertPRTNode($_GET["question"],$_GET["prt"],$_GET["node"]);
         break;
-    case "deletenode" :
+    case "deletePRTNode" :
         echo deletePRTNode($_GET["question"],$_GET["prt"],$_GET["node"]);
         break;
-    case "setstatus" :
+    case "setStatus" :
         echo setStatus($_GET["question"],$_GET["prt"],$_GET["node"],$_GET["status"]);
         break;
 }

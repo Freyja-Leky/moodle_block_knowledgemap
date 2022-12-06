@@ -1,33 +1,43 @@
 
-//Get UI
+//---------------------------UI---------------------------
+//echarts div
 let chart = echarts.init(document.getElementById('chart'));
 
+//file part
+let upload = $("#upload");
+let download = $("#download");
+let save = $("#save");
+
+//add node
 let nodeName = $("#nodeName");
 let fieldName = $("#fieldName");
 let addNode = $("#addNode");
 
+//add edge
 let fromSelect = $("#fromSelect");
 let toSelect = $("#toSelect");
 let addEdge = $("#addEdge");
-let download = $("#download");
-let upload = $("#upload");
-let save = $("#save");
 
-//data
+//---------------------------Data---------------------------
+//courseId & return url
 let id = null;
 let url = null;
 
+//mapData
 let mapId = null;
 let mapNodes = null;
-let nodeWeight = null;
 let mapLinks = null;
+let nodeWeight = null;
 
+//fileData
 let dataBook = null;
 let nodeData = null;
 let linkData = null;
 
+//echarts option
 let option = null;
 
+//---------------------------Function---------------------------
 //get url variables
 function getQueryVariable(variable)
 {
@@ -40,10 +50,21 @@ function getQueryVariable(variable)
     return(false);
 }
 
+//get mapId
+function getMapId() {
+    $.ajax({
+        url:"knowledgeMap.php?query="+"getMapId"+"&id="+id,
+        async:false,
+        success:function (data,status) {
+            mapId = data;
+        }
+    })
+}
+
 //get mapNodes
 function getMapNodes() {
     $.ajax({
-        url:"knowledgeMap.php?query="+"mapNodes"+"&mapId="+mapId,
+        url:"knowledgeMap.php?query="+"getMapNodes"+"&mapId="+mapId,
         async: false,
         success:function (data,status) {
             if (data == -1){
@@ -56,13 +77,32 @@ function getMapNodes() {
     })
 }
 
+//set fromSelect & toSelect
+function RefreshEdgeSelect(){
+
+    fromSelect.find("option").remove();
+    toSelect.find("option").remove();
+
+    if (mapNodes == null || mapNodes == -1 || mapNodes.length < 1){
+        return;
+    }
+
+    for (let i = 0; i < mapNodes.length; i++){
+        let opt = "<option value="+mapNodes[i].id+">"+mapNodes[i].name+"</option>";
+        fromSelect.append(opt);
+        opt = "<option value="+mapNodes[i].id+">"+mapNodes[i].name+"</option>";
+        toSelect.append(opt);
+    }
+}
+
+//get mapLinks
 function getMapLinks() {
     $.ajax({
-        url:"knowledgeMap.php?query="+"mapLinks"+"&mapId="+mapId,
+        url:"knowledgeMap.php?query="+"getMapLinks"+"&mapId="+mapId,
         async: false,
         success:function (data,status) {
             if (data == -1){
-                mapLinks = -1;
+                mapLinks = data;
             }
             else {
                 mapLinks = JSON.parse(data);
@@ -71,6 +111,42 @@ function getMapLinks() {
     })
 }
 
+//calculate nodeWeight
+function calNodeWeight(){
+    nodeWeight = [];
+
+    if (mapLinks == -1){
+        return;
+    }
+
+    for (let i = 0; i < mapLinks.length; i++){
+        let nodeExist = false;
+        for (let j = 0; j < nodeWeight.length; j++){
+            if (mapLinks[i].source == nodeWeight[j].id){
+                nodeWeight[j].weight+=3;
+                nodeExist = true;
+                break;
+            }
+        }
+        if (!nodeExist){
+            nodeWeight.push({id:mapLinks[i].source,weight:10});
+        }
+        nodeExist = false;
+        for (let j = 0; j < nodeWeight.length; j++){
+            if (mapLinks[i].target == nodeWeight[j].id){
+                nodeWeight[j].weight+=3;
+                nodeExist = true;
+                break;
+            }
+        }
+        if (!nodeExist){
+            nodeWeight.push({id:mapLinks[i].target,weight:10});
+        }
+    }
+
+}
+
+//input file data
 function setFileDataMap(nodeData,linkData) {
 
     mapNodes = [];
@@ -95,142 +171,165 @@ function setFileDataMap(nodeData,linkData) {
                 break;
             }
         }
+        // with blank delete the node
         if (source == "" || target == "")
             continue;
+
         mapLinks.push({"source":source,"target":target});
     }
 
-    console.log(mapNodes);
-    console.log(mapLinks);
 }
 
-function calNodeWeight(){
-    nodeWeight = [];
-
-    if (mapLinks == -1){
-        return;
-    }
-
-    for (let i = 0; i < mapLinks.length; i++){
-        let flag = false;
-        for (let j = 0; j < nodeWeight.length; j++){
-            if (mapLinks[i].source == nodeWeight[j].id){
-                nodeWeight[j].weight+=3;
-                flag = true;
-                break;
-            }
-        }
-        if (!flag){
-            nodeWeight.push({id:mapLinks[i].source,weight:10});
-        }
-        flag = false;
-        for (let j = 0; j < nodeWeight.length; j++){
-            if (mapLinks[i].target == nodeWeight[j].id){
-                nodeWeight[j].weight+=3;
-                flag = true;
-                break;
-            }
-        }
-        if (!flag){
-            nodeWeight.push({id:mapLinks[i].target,weight:10});
-        }
-    }
-
-}
 
 function RefreshGraph() {
     chart.clear();
 
-    getMapNodes();
-    getMapLinks();
-    calNodeWeight();
-
-    option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
-    chart.setOption(option);
-}
-
-function RefreshEdgeSelect(){
-
-    fromSelect.find("option").remove();
-    toSelect.find("option").remove();
+    window.onresize = function() {
+        chart.resize();
+    };
 
     getMapNodes();
-
-    for (let i = 0; i < mapNodes.length; i++){
-        let opt = "<option value="+mapNodes[i].id+">"+mapNodes[i].name+"</option>";
-        fromSelect.append(opt);
-        opt = "<option value="+mapNodes[i].id+">"+mapNodes[i].name+"</option>";
-        toSelect.append(opt);
-    }
-
-}
-
-function init() {
-
-    id = getQueryVariable("id");
-    url = getQueryVariable("url");
-
-    url = url+"="+id;
-
-    let aCourse = document.getElementById('aCourse');
-    aCourse.href = url;
-
-    //set Title
-    let fullName = null;
-    let shortName = null;
-
-    $.ajax({
-        url:"knowledgeMap.php?query="+"fullname"+"&id="+id,
-        success:function (data,status) {
-            fullName = data;
-            let pageHeader = document.getElementById("pageHeader");
-            pageHeader.innerHTML = fullName;
-        }
-    })
-
-    $.ajax({
-        url:"knowledgeMap.php?query="+"shortname"+"&id="+id,
-        success:function (data,status) {
-            shortName = data;
-            document.title = shortName;
-        }
-    })
-
-    //get Map from DB
-
-    $.ajax({
-        url:"knowledgeMap.php?query="+"mapId"+"&id="+id,
-        async:false,
-        success:function (data,status) {
-            mapId = data;
-        }
-    })
-
-    if (mapId == -1){
-        console.log("no map in km");
-        return;
-    }
-
-    getMapNodes();
-
-    if (mapNodes == -1){
-        console.log("no data in node_slot and clear the km");
-        return;
-    }
-
     RefreshEdgeSelect();
-
     getMapLinks();
-
-    if (mapLinks == -1){
-        console.log("no links but nodes exist");
-    }
-
     calNodeWeight();
 
     option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
     chart.setOption(option);
 }
+
+//---------------------------UI function---------------------------
+
+//input file excel
+function handleFile(e) {
+    let file = e.target.files[0];
+    let reader = new FileReader();
+    reader.onload = function () {
+        let data = e.target.result;
+        dataBook = XLSX.read(reader.result);
+    }
+    reader.readAsArrayBuffer(file);
+}
+
+document.getElementById("mapDataInput").addEventListener("change",handleFile,false);
+
+//with upload refresh the cache data
+upload.click(function () {
+
+    nodeName.val("");
+    fieldName.val("");
+
+    if (dataBook == null){
+        window.alert("Please choose file");
+        return;
+    }
+
+    //read notebook
+    let nodeSheet = dataBook.Sheets[dataBook.SheetNames[0]];
+    let linkSheet = dataBook.Sheets[dataBook.SheetNames[1]];
+
+    nodeData = XLSX.utils.sheet_to_json(nodeSheet);
+    linkData = XLSX.utils.sheet_to_json(linkSheet);
+
+    //input data
+    setFileDataMap(nodeData,linkData);
+    calNodeWeight();
+
+    //draw graph
+    chart.clear();
+    option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
+    chart.setOption(option);
+
+    addNode.attr("disabled",true);
+    addEdge.attr("disabled",true);
+})
+
+//download the excel model or data
+download.click(function () {
+
+    nodeData = [];
+    linkData = [];
+
+    nodeData.push(["Name","Field"]);
+    linkData.push(["Source","Target"]);
+
+    if (mapNodes != null && mapNodes != -1 && mapNodes.length > 0){
+        for (let i = 0 ; i < mapNodes.length; i++){
+            nodeData.push([mapNodes[i].name,mapNodes[i].category]);
+        }
+    }
+
+    if (mapLinks != null && mapLinks != -1 && mapLinks.length > 0){
+        for (let i = 0 ; i < mapLinks.length; i++){
+            let sourceName = null;
+            let targetName = null;
+
+            for (let j = 0; j < mapNodes.length; j++){
+                if (mapNodes[j].id == mapLinks[i].source){
+                    sourceName = mapNodes[j].name;
+                    break;
+                }
+            }
+            for (let j = 0; j < mapNodes.length; j++){
+                if (mapNodes[j].id == mapLinks[i].target){
+                    targetName = mapNodes[j].name;
+                    break;
+                }
+            }
+
+            if (sourceName == null || targetName == null)
+                continue;
+
+            linkData.push([sourceName,targetName]);
+        }
+    }
+
+    let workbook = XLSX.utils.book_new();
+    let nodeSheet = XLSX.utils.aoa_to_sheet(nodeData);
+    let linkSheet = XLSX.utils.aoa_to_sheet(linkData);
+    XLSX.utils.book_append_sheet(workbook,nodeSheet,"Nodes");
+    XLSX.utils.book_append_sheet(workbook,linkSheet,"Links");
+    XLSX.writeFile(workbook,"MapData.xlsx");
+})
+
+//save data into database
+save.click(function () {
+
+    nodeName.val("");
+    fieldName.val("");
+
+    //save nodes into DB
+    let data = "nodes=" +JSON.stringify(mapNodes);
+
+    $.ajax({
+        type: "post",
+        url: "knowledgeMap.php?query="+"updateMapNodes"+"&mapId="+mapId+"&id="+id,
+        async: false,
+        data: data,
+        success: function (data) {
+            console.log(data);
+        }
+    });
+
+    getMapId();
+
+    //save nodes into DB
+    data = "links=" + JSON.stringify(linkData);
+
+    $.ajax({
+        type: "post",
+        url: "knowledgeMap.php?query="+"updateMapLinks"+"&mapId="+mapId,
+        async: false,
+        data: data,
+        success: function (data) {
+            console.log(data);
+        }
+    });
+
+    RefreshGraph();
+
+    addNode.attr("disabled",false);
+    addEdge.attr("disabled",false);
+})
 
 addNode.click(function (){
 
@@ -246,52 +345,41 @@ addNode.click(function (){
         window.alert("Node field can not be empty");
     }
 
-    var insert = true;
+    let insert = true;
+
 
     if (mapId == -1){
-
         $.ajax({
-            url:"knowledgeMap.php?query="+"insertFirstNode"+"&name="+name+"&field="+field+"&id="+id,
+            url:"knowledgeMap.php?query="+"insertMap"+"&id="+id,
             async: false,
             success:function (data,status) {
-                if (data == -1){
-                    insert = false;
+                    console.log("insert map as "+ data);
                 }
-            }
-        })
-
-        $.ajax({
-            url:"knowledgeMap.php?query="+"mapId"+"&id="+id,
-            async:false,
-            success:function (data,status) {
-                mapId = data;
-            }
-        }) 
-
-    }
-    else {
-
-        $.ajax({
-            url:"knowledgeMap.php?query="+"insertOneNode"+"&name="+name+"&field="+field+"&mapId="+mapId,
-            async: false,
-            success:function (data,status) {
-                if (data == -1){
-                    insert = false;
-                }
-            }
         })
     }
+
+    getMapId();
+
+    $.ajax({
+        url:"knowledgeMap.php?query="+"insertNode"+"&name="+name+"&field="+field+"&mapId="+mapId,
+        async: false,
+        success:function (data,status) {
+            if (data == -1){
+                insert = false;
+            }
+        }
+    })
 
     if (!insert){
         window.alert("Node already exist");
         return;
     }
-    else
+    else{
+        nodeName.val("");
+        fieldName.val("");
         window.alert("Add node succeed");
+    }
 
-    RefreshEdgeSelect();
-
-    //todo
     RefreshGraph();
 
 })
@@ -313,6 +401,9 @@ addEdge.click(function () {
             if (data == -1){
                 window.alert("Link already exist");
             }
+            else if (data == -1){
+                console.log("no map exists");
+            }
             else
                 window.alert("Add link succeed");
         }
@@ -322,127 +413,64 @@ addEdge.click(function () {
 
 })
 
-download.click(function () {
+function init() {
 
-    console.log("download");
-    nodeData = [];
-    linkData = [];
+    //get courseId & return url from url
+    id = getQueryVariable("id");
+    url = getQueryVariable("url");
 
-    nodeData.push(["Name","Field"]);
-    linkData.push(["Source","Target"]);
+    url = url+"="+id;
 
+    let aCourse = document.getElementById('aCourse');
+    aCourse.href = url;
 
-    if (mapNodes != null && mapNodes.length > 0){
-        for (let i = 0 ; i < mapNodes.length; i++){
-            nodeData.push([mapNodes[i].name,mapNodes[i].category]);
+    //set Title
+    let fullName = null;
+    let shortName = null;
+
+    $.ajax({
+        url:"knowledgeMap.php?query="+"getCourseFullName"+"&id="+id,
+        success:function (data,status) {
+            fullName = data;
+            let pageHeader = document.getElementById("pageHeader");
+            pageHeader.innerHTML = fullName;
         }
-    }
+    })
 
-    if (mapLinks != null && mapLinks.length > 0){
-        for (let i = 0 ; i < mapLinks.length; i++){
-            let sourceName = null;
-            let targetName = null;
-            for (let j = 0; j < mapNodes.length; j++){
-                if (mapNodes[j].id == mapLinks[i].source){
-                    sourceName = mapNodes[j].name;
-                    break;
-                }
-            }
-            for (let j = 0; j < mapNodes.length; j++){
-                if (mapNodes[j].id == mapLinks[i].target){
-                    targetName = mapNodes[j].name;
-                    break;
-                }
-            }
-            linkData.push([sourceName,targetName]);
+    $.ajax({
+        url:"knowledgeMap.php?query="+"getCourseShortName"+"&id="+id,
+        success:function (data,status) {
+            shortName = data;
+            document.title = shortName;
         }
-    }
+    })
 
-    let workbook = XLSX.utils.book_new();
-    let nodeSheet = XLSX.utils.aoa_to_sheet(nodeData);
-    let linkSheet = XLSX.utils.aoa_to_sheet(linkData);
-    XLSX.utils.book_append_sheet(workbook,nodeSheet,"Node");
-    XLSX.utils.book_append_sheet(workbook,linkSheet,"Link");
-    XLSX.writeFile(workbook,"MapData.xlsx");
-})
-
-//input file excel
-function handleFile(e) {
-    let file = e.target.files[0];
-    let reader = new FileReader();
-    reader.onload = function () {
-        let data = e.target.result;
-        dataBook = XLSX.read(reader.result);
-        console.log(dataBook);
-    }
-    reader.readAsArrayBuffer(file);
-}
-
-
-document.getElementById("mapDataInput").addEventListener("change",handleFile,false);
-
-upload.click(function () {
-
-    if (dataBook == null){
-        window.alert("Please choose file");
+    //Map Id
+    getMapId();
+    if (mapId == -1){
+        console.log("no map in km");
         return;
     }
 
-    let nodeSheet = dataBook.Sheets[dataBook.SheetNames[0]];
-    let linkSheet = dataBook.Sheets[dataBook.SheetNames[1]];
+    //Map Nodes
+    getMapNodes();
+    if (mapNodes == -1){
+        console.log("no data in node_slot and clear the km");
+        return;
+    }
 
-    nodeData = XLSX.utils.sheet_to_json(nodeSheet);
-    linkData = XLSX.utils.sheet_to_json(linkSheet);
-
-    setFileDataMap(nodeData,linkData);
-
-    chart.clear();
-
-    calNodeWeight();
-
-    option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
-    chart.setOption(option);
-
-    addNode.attr("disabled",true);
-    addEdge.attr("disabled",true);
-
-    //to do
-})
-
-save.click(function () {
-
-    let data = "nodes=" +JSON.stringify(mapNodes);
-
-    $.ajax({
-        type: "post",
-        url: "knowledgeMap.php?query="+"filenodes"+"&mapId="+mapId,
-        async: false,
-        data: data,
-        success: function (data) {
-            console.log(data);
-        }
-    });
-
-    data = "links=" + JSON.stringify(linkData);
-
-
-    $.ajax({
-        type: "post",
-        url: "knowledgeMap.php?query="+"filelinks"+"&mapId="+mapId,
-        async: false,
-        data: data,
-        success: function (data) {
-            console.log(data);
-        }
-    });
-
-    RefreshGraph();
     RefreshEdgeSelect();
 
-    addNode.attr("disabled",false);
-    addEdge.attr("disabled",false);
-    //to do
-})
+    //Map Links
+    getMapLinks();
+    if (mapLinks == -1){
+        console.log("no links but nodes exist");
+    }
+    calNodeWeight();
 
+    //draw map
+    option = drawKnowledgeMap(mapNodes,mapLinks,nodeWeight);
+    chart.setOption(option);
+}
 
 init();

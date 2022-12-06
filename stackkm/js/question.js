@@ -1,4 +1,6 @@
-//Get UI
+
+//---------------------------UI---------------------------
+//echarts div
 let chart = echarts.init(document.getElementById('chart'));
 window.onresize = function() {
     chart.resize();
@@ -18,19 +20,27 @@ let selectSet = $("#setNodeSelect");
 let selectState = $("#stateSelect");
 let btnSave = $("#Save");
 
+//---------------------------Data---------------------------
+//courseId & return url
+let id = null;
+let url = null;
+
+//echarts option
 let option = null;
 
 //data
 let mapId = null;
 let mapNodes = null;
-let addNodesList = null;
+
 
 let quizList = null;
 let questionList = null;
 let prtList = null;
+
 let prtNodes = null;
+let addNodesList = null;
 
-
+//---------------------------Function---------------------------
 //get url variables
 function getQueryVariable(variable)
 {
@@ -43,10 +53,21 @@ function getQueryVariable(variable)
     return(false);
 }
 
+//get mapId
+function getMapId() {
+    $.ajax({
+        url:"knowledgeMap.php?query="+"getMapId"+"&id="+id,
+        async:false,
+        success:function (data,status) {
+            mapId = data;
+        }
+    })
+}
+
 //get mapNodes
 function getMapNodes() {
     $.ajax({
-        url:"knowledgeMap.php?query="+"mapNodes"+"&mapId="+mapId,
+        url:"knowledgeMap.php?query="+"getMapNodes"+"&mapId="+mapId,
         async: false,
         success:function (data,status) {
             if (data == -1){
@@ -61,34 +82,33 @@ function getMapNodes() {
 
 //get prtmap
 function getPRTMap(question,prt) {
+
+    addNodesList = JSON.parse(JSON.stringify(mapNodes));
+    prtNodes = null;
+
     $.ajax({
-        url:"question.php?query="+"prtnodes"+"&question="+question+"&prt="+prt,
+        url:"question.php?query="+"getPRTNodes"+"&question="+question+"&prt="+prt,
         async:false,
         success:function (data,status) {
-            if (data != "Null") {
+            if (data != -1) {
                 prtNodes = JSON.parse(data);
-
-                addNodesList = JSON.parse(JSON.stringify(mapNodes));
-                console.log(addNodesList);
-                for (let i = 0; i < prtNodes.length; i++){
-                    for (let j = 0; j < addNodesList.length; j++){
-                        if (prtNodes[i].id == addNodesList[j].id){
-                            addNodesList.splice(j,1);
+                for (let i = 0; i < prtNodes.length; i++) {
+                    for (let j = 0; j < addNodesList.length; j++) {
+                        if (prtNodes[i].id == addNodesList[j].id) {
+                            addNodesList.splice(j, 1);
                         }
                     }
                 }
-            }
-            else {
-                addNodesList = JSON.parse(JSON.stringify(mapNodes));
-                prtNodes = null;
             }
         }
     })
 
 
+}
+
+function refreshAdd(){
     //renew add
     selectAdd.find("option").remove();
-
 
     if (addNodesList == null || addNodesList.length < 1){
         let opt = "<option value=" + -1 + ">" + "No option" + "</option>";
@@ -100,7 +120,10 @@ function getPRTMap(question,prt) {
             selectAdd.append(opt);
         }
     }
+}
 
+function refreshDelete() {
+    //renew delete
     selectDelete.find("option").remove();
 
     if (prtNodes == null || prtNodes.length < 1){
@@ -113,7 +136,10 @@ function getPRTMap(question,prt) {
             selectDelete.append(opt);
         }
     }
+}
 
+function refreshSet() {
+    //renew set
     selectSet.find("option").remove();
 
     if (prtNodes == null || prtNodes.length < 1){
@@ -126,11 +152,24 @@ function getPRTMap(question,prt) {
             selectSet.append(opt);
         }
     }
+}
 
+function refreshSelect() {
+
+    refreshAdd();
+
+    refreshDelete();
+
+    refreshSet();
+}
+
+function refreshGraph() {
     chart.clear();
+
     window.onresize = function() {
         chart.resize();
     };
+
     option = drawPRTMap(prtNodes);
     if (option == null){
         return;
@@ -138,77 +177,7 @@ function getPRTMap(question,prt) {
     chart.setOption(option);
 }
 
-//init
-function init(){
-
-    let id = getQueryVariable("id");
-    let url = getQueryVariable("url");
-
-    url = url+"="+id;
-
-    let aCourse = document.getElementById('aCourse');
-    aCourse.href = url;
-
-    //set Title
-    let fullName = null;
-    let shortName = null;
-
-    $.ajax({
-        url:"question.php?query="+"fullname"+"&id="+id,
-        success:function (data,status) {
-            fullName = data;
-            let pageHeader = document.getElementById("pageHeader");
-            pageHeader.innerHTML = fullName;
-        }
-    })
-
-    $.ajax({
-        url:"question.php?query="+"shortname"+"&id="+id,
-        success:function (data,status) {
-            shortName = data;
-            document.title = shortName;
-        }
-    })
-
-    //set Quiz options
-    let opt = "<option value='-1'>Nothing Selected</option>";
-    selectQuiz.append(opt);
-
-    $.ajax({
-        url:"question.php?query="+"quizlist"+"&id="+id,
-        success:function (data,status) {
-            if (data != "Null"){
-                quizList = JSON.parse(data);
-
-                for (let i = 0;i<quizList.length;i++){
-                    opt = "<option value="+quizList[i].id+">"+quizList[i].name+"</option>"
-                    selectQuiz.append(opt);
-                }
-            }
-        }
-    })
-
-    $.ajax({
-        url:"knowledgeMap.php?query="+"mapId"+"&id="+id,
-        async:false,
-        success:function (data,status) {
-            mapId = data;
-        }
-    })
-
-    if (mapId == -1){
-        console.log("no map in km");
-        return;
-    }
-
-    getMapNodes();
-
-    if (mapNodes == -1){
-        console.log("no data in node_slot and clear the km");
-        return;
-    }
-
-}
+//---------------------------UI function---------------------------
 
 selectQuiz.change(function () {
     //clear options
@@ -224,13 +193,12 @@ selectQuiz.change(function () {
     selectQuestion.append(opt);
 
     $.ajax({
-        url:"question.php?query="+"questions"+"&quiz="+quiz,
+        url:"question.php?query="+"getQuizQuestionList"+"&quiz="+quiz,
         success:function (data,status) {
-            if (data != "Null") {
+            if (data != -1) {
                 questionList = JSON.parse(data);
-
                 for (let i = 0; i < questionList.length; i++) {
-                    let opt = "<option value=" + questionList[i].id + ">" + questionList[i].name + "</option>"
+                    let opt = "<option value=" + questionList[i].id + ">" + questionList[i].name + "</option>";
                     selectQuestion.append(opt);
                 }
             }
@@ -245,7 +213,6 @@ selectQuestion.change(function () {
     selectPRT.find("option").remove();
 
     let question = $(this).val();
-
     if (question == -1){
         return;
     }
@@ -254,9 +221,9 @@ selectQuestion.change(function () {
     selectPRT.append(opt);
 
     $.ajax({
-        url:"question.php?query="+"prt"+"&question="+question,
+        url:"question.php?query="+"getQuestionPRTList"+"&question="+question,
         success:function (data,status) {
-            if (data != "Null") {
+            if (data != -1) {
                 prtList = JSON.parse(data);
                 for (let i = 0; i < prtList.length; i++) {
                     let opt = "<option value=" + prtList[i]+ ">" + prtList[i] + "</option>"
@@ -269,12 +236,18 @@ selectQuestion.change(function () {
 
 
 btnRefresh.click(function () {
+    let quiz = selectQuiz.val();
     let question = selectQuestion.val();
     let prt = selectPRT.val();
 
-    getPRTMap(question,prt);
-    //to do
+    if (quiz == '-1' || question == '-1' || prt == '-1'){
+        window.alert("Quiz, question, and prt can not be empty");
+        return;
+    }
 
+    getPRTMap(question,prt);
+    refreshSelect();
+    refreshGraph();
 })
 
 
@@ -290,7 +263,7 @@ btnAdd.click(function () {
     }
 
     $.ajax({
-        url:"question.php?query="+"addnode"+"&question="+question+"&prt="+prt+"&node="+node,
+        url:"question.php?query="+"insertPRTNode"+"&question="+question+"&prt="+prt+"&node="+node,
         async : false,
         success:function (data,status) {
             if (data == -1){
@@ -299,6 +272,8 @@ btnAdd.click(function () {
             else{
                 window.alert("Succeed");
                 getPRTMap(question,prt);
+                refreshSelect();
+                refreshGraph();
             }
         }
     })
@@ -318,19 +293,20 @@ btnDelete.click(function () {
     }
 
     $.ajax({
-        url:"question.php?query="+"deletenode"+"&question="+question+"&prt="+prt+"&node="+node,
+        url:"question.php?query="+"deletePRTNode"+"&question="+question+"&prt="+prt+"&node="+node,
         async : false,
         success:function (data,status) {
             if (data == -1){
                 console.log("Map not exist");
             }
             else{
-                console.log(data);
+                window.alert("Succeed");
                 getPRTMap(question,prt);
+                refreshSelect();
+                refreshGraph();
             }
         }
     })
-
 })
 
 btnSave.click(function () {
@@ -346,13 +322,82 @@ btnSave.click(function () {
     }
 
     $.ajax({
-        url:"question.php?query="+"setstatus"+"&question="+question+"&prt="+prt+"&node="+node+"&status="+status,
+        url:"question.php?query="+"setStatus"+"&question="+question+"&prt="+prt+"&node="+node+"&status="+status,
         async : false,
         success:function (data,status) {
             getPRTMap(question,prt);
+            refreshGraph()
         }
     })
 })
+
+//init
+function init(){
+
+    //get courseId & return url from url
+    id = getQueryVariable("id");
+    url = getQueryVariable("url");
+
+    url = url+"="+id;
+
+    let aCourse = document.getElementById('aCourse');
+    aCourse.href = url;
+
+    //set Title
+    let fullName = null;
+    let shortName = null;
+
+    $.ajax({
+        url:"question.php?query="+"getCourseFullName"+"&id="+id,
+        success:function (data,status) {
+            fullName = data;
+            let pageHeader = document.getElementById("pageHeader");
+            pageHeader.innerHTML = fullName;
+        }
+    })
+
+    $.ajax({
+        url:"question.php?query="+"getCourseShortName"+"&id="+id,
+        success:function (data,status) {
+            shortName = data;
+            document.title = shortName;
+        }
+    })
+
+    //set Quiz options
+    let opt = "<option value='-1'>Nothing Selected</option>";
+    selectQuiz.append(opt);
+
+    $.ajax({
+        url:"question.php?query="+"getCourseQuizList"+"&id="+id,
+        success:function (data,status) {
+            if (data != -1){
+                quizList = JSON.parse(data);
+
+                for (let i = 0;i<quizList.length;i++){
+                    opt = "<option value="+quizList[i].id+">"+quizList[i].name+"</option>"
+                    selectQuiz.append(opt);
+                }
+            }
+        }
+    })
+
+    getMapId();
+
+    if (mapId == -1){
+        console.log("no map in km");
+        return;
+    }
+
+    //Map Nodes
+    getMapNodes();
+
+    if (mapNodes == -1){
+        console.log("no data in node_slot and clear the km");
+        return;
+    }
+
+}
 
 init();
 

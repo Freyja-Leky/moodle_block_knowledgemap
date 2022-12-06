@@ -32,7 +32,9 @@ $capabilities = [
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => [
             'teacher' => CAP_ALLOW,
-            'student' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+
         ],
     ],
     'block/stackkm:view' => [
@@ -40,6 +42,9 @@ $capabilities = [
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'teacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+            'editingteacher' =>CAP_ALLOW,
         ],
     ],
 ];
