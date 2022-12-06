@@ -1,4 +1,4 @@
-
+//for knowledgeMap.js
 function drawKnowledgeMap(mapNodes,mapLinks,nodeWeight){
     let nodes = [];
     let links = [];
@@ -25,26 +25,27 @@ function drawKnowledgeMap(mapNodes,mapLinks,nodeWeight){
                 symbolSize : weight,
                 category : mapNodes[i].category,
                 label: {
-                    show: weight > 15
+                    show: weight > 20
                 }
             })
         }
     }
 
+    //set catrgory
     let categories = [];
-
     for (let i = 0; i < mapNodes.length;i++){
-        let flag = false;
+        let exist = false;
         for (let j = 0; j < categories.length;j++){
             if (categories[j].name == mapNodes[i].category){
-                flag = true;
+                exist = true;
                 break;
             }
         }
-        if (!flag){
+        if (!exist){
             categories.push({"name": mapNodes[i].category});
         }
     }
+
 
     let option = {
         tooltip: {
@@ -77,7 +78,7 @@ function drawKnowledgeMap(mapNodes,mapLinks,nodeWeight){
                     curveness: 0.3
                 },
                 force: {
-                  repulsion: 1000
+                  repulsion: 500
                 },
                 emphasis: {
                     focus: 'adjacency',
@@ -92,6 +93,7 @@ function drawKnowledgeMap(mapNodes,mapLinks,nodeWeight){
     return option;
 }
 
+//for question.js
 function drawPRTMap(prtNodes) {
     let nodes = [];
     let links = [];
