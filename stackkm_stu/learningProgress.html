@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--    jQuery-->
+  <script src="lib/jquery-3.6.1.js"></script>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" >
+  <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- echarts -->
+  <script src="lib/echarts.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <header class="d-flex align-items-center pb-3 mb-4 pt-5 border-bottom">
+    <span class="fs-2 fw-bold" id="pageHeader"></span>
+  </header>
+
+  <ul class = "nav nav-tabs mx-3">
+    <li class="nav-item">
+      <a class="nav-link fw-light" href="#" id = "aCourse">Course</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link fw-light" href="#" id = "aKnowledgeMap">Knowledge Map</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active fw-light" aria-current="page" href="#" id = "aLearningProgress">Learning Progress</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link fw-light" href="#" id = "aTestFeedback">Test Feedback</a>
+    </li>
+  </ul>
+
+
+  </br>
+  </br>
+
+    <h4 class="fw-bold text-center">Learning Completion</h4>
+
+  <div class="progress col-10 offset-1" style="height: 25px">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress" role="progressbar" aria-label="learning progress" style="width: 25%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+
+  </br>
+
+  <div class="row">
+
+    <div class="col-10 offset-1">
+      </br>
+      <div id="chart" style="margin:0 auto;width: 100%;height: 600px;border: 1px solid"></div>
+    </div>
+
+  </div>
+
+  </br>
+
+
+</div>
+
+<script src="js/graph.js"></script>
+<script src="js/learningProgress.js"></script>
+
+</body>
+</html>
