@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,9 +13,7 @@
 
     <!-- echarts -->
     <script src="lib/echarts.min.js"></script>
-    <!-- Vis -->
-<!--    <script src="lib/vis.js"></script>-->
-<!--    <script src="lib/vis-network.min.js"></script>-->
+
     <!--XLSX-->
     <script src = "lib/xlsx.full.min.js"></script>
 
@@ -24,7 +22,7 @@
 <div class="container">
 
     <header class="d-flex align-items-center pb-3 mb-4 pt-5 border-bottom">
-        <span class="fs-3 fw-bold" id="pageHeader"></span>
+        <span class="fs-2 fw-bold" id="pageHeader"></span>
     </header>
 
     <ul class = "nav nav-tabs mx-3">
@@ -32,7 +30,10 @@
             <a class="nav-link fw-light" href="#" id = "aCourse">Course</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link active fw-light " aria-current="page" href="#">Map</a>
+            <a class="nav-link active fw-light " aria-current="page" href="#">Knowledge Map</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-light" href="#" id = "aQuestionPRTSetting">Question PRT Setting</a>
         </li>
     </ul>
 
@@ -59,7 +60,7 @@
 
             <p></p>
 
-            <button class = "btn btn-outline-secondary" id = "download" style="width: 45%;float: left" type="button">
+            <button class = "btn btn-secondary" id = "download" style="width: 45%;float: left" type="button">
                 Download Map
             </button>
 
@@ -97,6 +98,10 @@
         </div>
 
     </div>
+
+    <br />
+    <br />
+
 </div>
 
 <script src="js/graph.js"></script>
