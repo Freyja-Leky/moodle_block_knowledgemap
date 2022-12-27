@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--    jQuery-->
+    <script src="lib/jquery-3.6.1.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" >
+    <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- echarts -->
+    <script src="lib/echarts.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <header class="d-flex align-items-center pb-3 mb-4 pt-5 border-bottom">
+            <span class="fs-2 fw-bold" id="pageHeader"></span>
+        </header>
+
+        <ul class = "nav nav-tabs mx-3">
+            <li class="nav-item">
+                <a class="nav-link fw-light" href="#" id = "aCourse">Course</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active fw-light" aria-current="page" href="#">Knowledge Map</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-light" href="#" id = "aLearningProgress">Learning Progress</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-light " href="#" id = "aTestFeedback">Test Feedback</a>
+            </li>
+        </ul>
+
+        <br />
+        <br />
+
+        <div id="chart" style="margin:0 auto;width: 80%;height: 600px;border: 1px solid"></div>
+
+        <br />
+        <br />
+
+    </div>
+<script src="js/data.js"></script>
+<script src="js/graph.js"></script>
+<script src="js/knowledgeMap.js"></script>
+
+</body>
+</html>

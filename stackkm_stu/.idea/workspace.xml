@@ -13,8 +13,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="HTML File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -53,7 +53,7 @@
       <workItem from="1670471812270" duration="460000" />
       <workItem from="1670472575482" duration="217000" />
       <workItem from="1670473456092" duration="131000" />
-      <workItem from="1670473704836" duration="51611000" />
+      <workItem from="1670473704836" duration="62563000" />
     </task>
     <servers />
   </component>
